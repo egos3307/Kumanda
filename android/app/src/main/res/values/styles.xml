@@ -1,0 +1,1 @@
+<resources><style name="Theme.CloudPad" parent="android:style/Theme.Material.Light.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:colorAccent">#42D3A4</item><item name="android:navigationBarColor">#0C111A</item><item name="android:windowLightStatusBar">false</item></style></resources>

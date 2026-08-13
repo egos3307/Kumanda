@@ -1,0 +1,17 @@
+# Android
+.gradle/
+**/build/
+local.properties
+*.apk
+*.aab
+.idea/
+# .NET / Visual Studio
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+# Distribution and OS
+dist/
+*.log
+.DS_Store

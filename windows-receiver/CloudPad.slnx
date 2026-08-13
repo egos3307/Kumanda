@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CloudPad.Protocol/CloudPad.Protocol.csproj" />
+  <Project Path="CloudPad.Receiver/CloudPad.Receiver.csproj" />
+  <Project Path="CloudPad.TestClient/CloudPad.TestClient.csproj" />
+  <Project Path="CloudPad.Tests/CloudPad.Tests.csproj" />
+</Solution>
