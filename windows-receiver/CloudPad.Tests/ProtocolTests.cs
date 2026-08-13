@@ -10,4 +10,5 @@ public class ProtocolTests
  [Fact]public async Task TimeoutCanReleaseState(){var state=new ControllerState(1,0,0,0,0,0,GamepadButtons.A);await Task.Delay(20);state=ControllerState.Neutral;Assert.Equal(default,state);}
  [Fact]public void DeadzoneRescales(){Assert.Equal(0,Axis.Deadzone(.1f,.15f));Assert.InRange(Axis.Deadzone(.5f,.15f),.41f,.42f);}
  [Fact]public void SessionValidationUsesToken(){var m=new SessionManager();var s=m.Create("phone");Assert.True(m.Validate(s.Id,s.Token));var bad=(byte[])s.Token.Clone();bad[0]^=1;Assert.False(m.Validate(s.Id,bad));m.Clear();Assert.False(m.Validate(s.Id,s.Token));}
+ [Fact]public void OldConnectionCannotClearReplacementSession(){var m=new SessionManager();var old=m.Create("old");var current=m.Create("current");Assert.False(m.Clear(old.Id));Assert.True(m.Validate(current.Id,current.Token));Assert.True(m.Clear(current.Id));Assert.False(m.Validate(current.Id,current.Token));}
 }

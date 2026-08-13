@@ -82,8 +82,9 @@ public static class Sequence
 public sealed record Session(uint Id, byte[] Token, string DeviceName);
 public sealed class SessionManager
 {
-    Session? current;
-    public Session Create(string device) { current=new((uint)RandomNumberGenerator.GetInt32(1,int.MaxValue),RandomNumberGenerator.GetBytes(32),device); return current; }
-    public bool Validate(uint id,ReadOnlySpan<byte> token)=>current is not null && current.Id==id && CryptographicOperations.FixedTimeEquals(current.Token,token);
-    public void Clear()=>current=null;
+    readonly object sync=new(); Session? current;
+    public Session Create(string device) { lock(sync) return current=new((uint)RandomNumberGenerator.GetInt32(1,int.MaxValue),RandomNumberGenerator.GetBytes(32),device); }
+    public bool Validate(uint id,ReadOnlySpan<byte> token){lock(sync)return current is not null && current.Id==id && CryptographicOperations.FixedTimeEquals(current.Token,token);}
+    public bool Clear(uint id){lock(sync){if(current?.Id!=id)return false;current=null;return true;}}
+    public void Clear(){lock(sync)current=null;}
 }

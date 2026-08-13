@@ -90,6 +90,8 @@ The default 500 ms timeout is intentionally conservative: after no valid UDP pac
 
 Use only the official release link above. Check Apps & Features for ViGEm Bus Driver and Device Manager → System devices. Reboot after install/update. Logs at `%LocalAppData%\CloudPad\receiver.log` contain technical errors but never PINs/tokens. Generate a new PIN to invalidate convenient reuse; restarting Receiver invalidates every session.
 
+CloudPad does not install a custom kernel driver and does not use vJoy. An old **Virtual Xbox 360 Controller** showing Code 28 is not created by the current receiver; uninstall that stale device from Device Manager (select **Delete the driver software** only if it belongs to the abandoned custom implementation), then rescan hardware. Do not remove **Nefarius Virtual Gamepad Emulation Bus** / ViGEmBus under System devices, because that is the signed backend used by this receiver.
+
 ## 15. Azure VM kullanım notları
 
 Use Windows 11 with an interactive logged-in session, install Tailscale and ViGEmBus, then add the scoped firewall rule. No Azure public IP inbound/NAT rule is required for CloudPad. Do not expose 26760 in an Azure NSG. Minimizing closes the window to the system tray while the receiver continues; an RDP disconnect normally leaves the logged-in session alive. A sign-out or VM deallocation stops it. **Start minimized** and **Start CloudPad with Windows** are reversible per-user settings.
