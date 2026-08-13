@@ -2,6 +2,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using CloudPad.Protocol;
@@ -31,6 +32,7 @@ public sealed class ReceiverServer : IDisposable
         new(false, false, false, "—", "—", 0, 0, default, "Durduruldu");
     public string Pin => pin;
     public int Port { get; private set; }
+    public string? LastGamepadError { get; private set; }
 
     public ReceiverServer(IVirtualGamepad gamepad)
     {
@@ -45,15 +47,17 @@ public sealed class ReceiverServer : IDisposable
         if (gamepad.IsConnected) return true;
         try
         {
-            AppSettings.Log("Info", "ViGEm client initialization started");
+            LastGamepadError = null;
+            AppSettings.Log("Info", $"ViGEm userspace connection started; process={RuntimeInformation.ProcessArchitecture}; OS={RuntimeInformation.OSArchitecture}; client={typeof(Nefarius.ViGEm.Client.ViGEmClient).Assembly.Location}");
             gamepad.Connect();
             Snapshot = Snapshot with { GamepadReady = true, Message = "Xbox 360 Controller hazır" };
-            AppSettings.Log("Info", "ViGEm found; virtual Xbox 360 controller created");
+            AppSettings.Log("Info", "ViGEm userspace client connected; virtual Xbox 360 controller connected and initial report submitted");
         }
         catch (Exception ex)
         {
-            Snapshot = Snapshot with { GamepadReady = false, Message = "ViGEmBus bulunamadı" };
-            AppSettings.Log("Error", $"ViGEm not found or unavailable: {ex}");
+            LastGamepadError = ExceptionDetails.Format(ex);
+            Snapshot = Snapshot with { GamepadReady = false, Message = $"Xbox 360 Controller bağlantısı başarısız: {ex.Message}" };
+            AppSettings.Log("Error", $"ViGEm userspace client/controller connection failed.{Environment.NewLine}{LastGamepadError}");
         }
         Raise();
         return Snapshot.GamepadReady;
@@ -91,7 +95,7 @@ public sealed class ReceiverServer : IDisposable
         Snapshot = Snapshot with
         {
             Running = true, GamepadReady = ready,
-            Message = ready ? "Xbox 360 Controller hazır" : "ViGEmBus bulunamadı; sunucu çalışıyor"
+            Message = ready ? "Xbox 360 Controller hazır" : "Xbox 360 Controller bağlanamadı; sunucu çalışıyor"
         };
         Raise();
         _ = TcpLoop(cts!.Token);
@@ -141,7 +145,7 @@ public sealed class ReceiverServer : IDisposable
                 Snapshot = Snapshot with
                 {
                     PhoneConnected = true, Phone = hello.deviceName ?? "Android", PhoneIp = phoneIp,
-                    Message = Snapshot.GamepadReady ? "Telefon bağlı — Xbox 360 Controller hazır" : "Telefon bağlı — ViGEmBus bulunamadı"
+                    Message = Snapshot.GamepadReady ? "Telefon bağlı — Xbox 360 Controller hazır" : "Telefon bağlı — controller bağlantısı başarısız"
                 };
                 AppSettings.Log("Info", $"Phone connected: {Snapshot.Phone}; IP={phoneIp}");
                 Raise();
@@ -265,4 +269,26 @@ public sealed class ReceiverServer : IDisposable
     }
 
     private sealed record Hello(string type, byte protocolVersion, string? deviceName, string pin);
+}
+
+internal static class ExceptionDetails
+{
+    public static string Format(Exception exception)
+    {
+        var text = new StringBuilder();
+        var current = exception;
+        var depth = 0;
+        while (current is not null)
+        {
+            if (depth > 0) text.AppendLine().AppendLine($"InnerException[{depth}]:");
+            text.AppendLine($"Type: {current.GetType().FullName}");
+            text.AppendLine($"Message: {current.Message}");
+            text.AppendLine($"HRESULT: 0x{current.HResult:X8} ({current.HResult})");
+            text.AppendLine("StackTrace:");
+            text.AppendLine(current.StackTrace ?? "<not available>");
+            current = current.InnerException;
+            depth++;
+        }
+        return text.ToString().TrimEnd();
+    }
 }

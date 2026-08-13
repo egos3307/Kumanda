@@ -1,4 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
- <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><AssemblyName>CloudPadReceiver</AssemblyName></PropertyGroup>
+ <PropertyGroup>
+  <OutputType>WinExe</OutputType>
+  <TargetFramework>net8.0-windows</TargetFramework>
+  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  <PlatformTarget>x64</PlatformTarget>
+  <SelfContained>true</SelfContained>
+  <PublishSingleFile>false</PublishSingleFile>
+  <UseWPF>true</UseWPF>
+  <UseWindowsForms>true</UseWindowsForms>
+  <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  <Nullable>enable</Nullable>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <AssemblyName>CloudPadReceiver-ViGEmFix-x64</AssemblyName>
+ </PropertyGroup>
  <ItemGroup><ProjectReference Include="../CloudPad.Protocol/CloudPad.Protocol.csproj"/><PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.256"/></ItemGroup>
+ <Target Name="VerifyViGEmClientInRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+  <Error Condition="!Exists('$(TargetDir)Nefarius.ViGEm.Client.dll')" Text="Nefarius.ViGEm.Client.dll is missing from the Release output." />
+ </Target>
 </Project>
