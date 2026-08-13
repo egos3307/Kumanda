@@ -4,6 +4,7 @@
 local.properties
 *.apk
 *.aab
+!dist/**/*.apk
 .idea/
 # .NET / Visual Studio
 **/bin/
@@ -12,6 +13,5 @@ local.properties
 *.user
 *.suo
 # Distribution and OS
-dist/
 *.log
 .DS_Store
